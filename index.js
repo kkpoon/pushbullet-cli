@@ -1,5 +1,5 @@
+var fs = require('fs');
 var request = require('request');
-var when = require('when');
 
 function PushBullet(PB_ACCESS_TOKEN) {
   function AccessHeader() {
@@ -8,28 +8,87 @@ function PushBullet(PB_ACCESS_TOKEN) {
     };
   }
 
-  function ListDevice() {
-    var Got = when.defer();
+  function ListDevice(callback) {
     request({
       url: "https://api.pushbullet.com/v2/devices",
-      headers: AccessHeader()
+      headers: AccessHeader(),
+      json: true
     }, function(err, res, body) {
       if (err) {
-        Got.reject(err);
+        callback(err);
       } else {
-        var data = JSON.parse(body);
-        if (data && data.devices && data.devices.length > 0) {
-          Got.resolve(data.devices);
-        } else {
-          Got.resolve([]);
-        }
+        callback(null, body);
       }
     });
-    return Got.promise;
   }
-
+  
+  function Push(params, callback) {
+    function DoPush(params, callback) {
+      request({
+        url: "https://api.pushbullet.com/v2/pushes",
+        method: "POST",
+        headers: AccessHeader(),
+        json: true,
+        body: params
+      }, function(err, res, body) {
+        if (err) {
+          callback(err)
+        } else {
+          callback(null, body);
+        }
+      });
+    }
+    
+    if (params.type === 'file') {
+      UploadFile(params, function(err, fileInfo) {
+        params.file_url = fileInfo.file_url;
+        delete params.file;
+        DoPush(params, callback);
+      });
+    } else {
+      DoPush(params, callback);
+    }
+  }
+  
+  function UploadFile(params, callback) {
+    request({
+      url: "https://api.pushbullet.com/v2/upload-request",
+      method: "POST",
+      headers: AccessHeader(),
+      json: true,
+      body: {file_name: params.file_name, file_type: params.file_type}
+    }, function(err, res, body) {
+      if (err) {
+        callback(err);
+      } else {
+        var awsData = body.data;
+        awsData.file = fs.createReadStream(params.file);
+        request({
+          url: body.upload_url,
+          method: "POST",
+          formData: awsData
+        }, function(err, res) {
+          if (err) {
+            callback(err);
+          } else {
+            if (res.statusCode === 204) {
+              callback(null, {
+                file_type: body.file_type,
+                file_name: body.file_name,
+                file_url: body.file_url
+              });
+            } else {
+              callback(res);
+            }
+          }
+        });
+      }
+    });
+  }
+  
   return {
-    ListDevice: ListDevice
+    ListDevice: ListDevice,
+    Push: Push
   };
 }
 
