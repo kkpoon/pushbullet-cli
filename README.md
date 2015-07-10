@@ -10,6 +10,10 @@
 
 ## Usages
 
+### List Contacts
+
+```pushbullet list-contacts```
+
 ### List Devices
 
 ```pushbullet list-devices```

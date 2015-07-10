@@ -10,15 +10,37 @@ var PushBullet = require('../');
 
 var PB_ACCESS_TOKEN = process.env.PB_ACCESS_TOKEN;
 
-function ListDevices() {
-  PushBullet(PB_ACCESS_TOKEN).ListDevice(function(err, res) {
+function ListContacts() {
+  PushBullet(PB_ACCESS_TOKEN).ListContacts(function(err, res) {
     if (err) {
       console.error(err);
     } else {
-      if (res && res.devices && res.devices.length > 0) {
-        res.devices.forEach(function(d, i) {
-          console.log((i+1) + ' ' + d.nickname + '\t' + '(' + d.iden + ')');
-        });
+      if (res && res.contacts) {
+        if (res.contacts.length > 0) {
+          res.contacts.forEach(function(d, i) {
+            console.log((i+1) + ' ' + d.name + '\t' + d.email);
+          });
+        } else {
+          console.log("No contact");
+        }
+      }
+    }
+  });
+}
+
+function ListDevices() {
+  PushBullet(PB_ACCESS_TOKEN).ListDevices(function(err, res) {
+    if (err) {
+      console.error(err);
+    } else {
+      if (res && res.devices) {
+        if (res.devices.length > 0) {
+          res.devices.forEach(function(d, i) {
+            console.log((i+1) + ' ' + d.nickname + '\t' + '(' + d.iden + ')');
+          });
+        } else {
+          console.log("No device")
+        }
       }
     }
   });
@@ -109,6 +131,7 @@ function PushFile(yargs) {
 if (PB_ACCESS_TOKEN) {
   yargs
     .usage("Usage: $0 <command> <options>")
+    .command('list-contacts', 'list your contacts', ListContacts)
     .command('list-devices', 'list the available devices', ListDevices)
     .command('push', 'push something to target', function(yargs) {
       yargs

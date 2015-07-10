@@ -8,9 +8,23 @@ function PushBullet(PB_ACCESS_TOKEN) {
     };
   }
 
-  function ListDevice(callback) {
+  function ListDevices(callback) {
     request({
       url: "https://api.pushbullet.com/v2/devices",
+      headers: AccessHeader(),
+      json: true
+    }, function(err, res, body) {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, body);
+      }
+    });
+  }
+  
+  function ListContacts(callback) {
+    request({
+      url: "https://api.pushbullet.com/v2/contacts",
       headers: AccessHeader(),
       json: true
     }, function(err, res, body) {
@@ -87,7 +101,8 @@ function PushBullet(PB_ACCESS_TOKEN) {
   }
   
   return {
-    ListDevice: ListDevice,
+    ListContacts: ListContacts,
+    ListDevices: ListDevices,
     Push: Push
   };
 }
