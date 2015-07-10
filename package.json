@@ -1,5 +1,5 @@
 {
-  "name": "pushbullet-cli",
+  "name": "kkpoon-pushbullet-cli",
   "version": "1.0.0",
   "description": "command line tool for pushbullet",
   "main": "index.js",
