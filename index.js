@@ -4,7 +4,7 @@ var request = require('request');
 function PushBullet(PB_ACCESS_TOKEN) {
   function AccessHeader() {
     return {
-      "Authorization": "Bearer " + PB_ACCESS_TOKEN
+      "Access-Token": PB_ACCESS_TOKEN
     };
   }
 
@@ -21,7 +21,7 @@ function PushBullet(PB_ACCESS_TOKEN) {
       }
     });
   }
-  
+
   function ListContacts(callback) {
     request({
       url: "https://api.pushbullet.com/v2/contacts",
@@ -35,7 +35,7 @@ function PushBullet(PB_ACCESS_TOKEN) {
       }
     });
   }
-  
+
   function Push(params, callback) {
     function DoPush(params, callback) {
       request({
@@ -52,7 +52,7 @@ function PushBullet(PB_ACCESS_TOKEN) {
         }
       });
     }
-    
+
     if (params.type === 'file') {
       UploadFile(params, function(err, fileInfo) {
         params.file_url = fileInfo.file_url;
@@ -63,7 +63,7 @@ function PushBullet(PB_ACCESS_TOKEN) {
       DoPush(params, callback);
     }
   }
-  
+
   function UploadFile(params, callback) {
     request({
       url: "https://api.pushbullet.com/v2/upload-request",
@@ -99,7 +99,7 @@ function PushBullet(PB_ACCESS_TOKEN) {
       }
     });
   }
-  
+
   return {
     ListContacts: ListContacts,
     ListDevices: ListDevices,
