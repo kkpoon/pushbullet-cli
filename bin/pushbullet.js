@@ -46,6 +46,36 @@ function ListDevices() {
   });
 }
 
+function ListPushes() {
+  PushBullet(PB_ACCESS_TOKEN).ListPushes(function(err, res) {
+    if (err) {
+      console.error(err);
+    } else {
+      if (res && res.pushes) {
+        if (res.pushes.length > 0) {
+          res.pushes.forEach(function(d, i) {
+            console.log("------------------------------------");
+            console.log((i+1) + ' ' + d.type + '\t' + '(' + d.iden + ')');
+            console.log("------------------------------------");
+            if (d.title) {
+              console.log("  Title: " + d.title);
+            }
+            if (d.body) {
+              console.log("  Body: " + d.body);
+            }
+            if (d.file_url) {
+              console.log("  Attachment: " + d.file_url);
+            }
+            console.log("");
+          });
+        } else {
+          console.log("No push")
+        }
+      }
+    }
+  });
+}
+
 function Push(yargs) {
   yargs
     .string('t')
@@ -133,6 +163,7 @@ if (PB_ACCESS_TOKEN) {
     .usage("Usage: $0 <command> <options>")
     .command('list-contacts', 'list your contacts', ListContacts)
     .command('list-devices', 'list the available devices', ListDevices)
+    .command('list-pushes', 'list the pushes', ListPushes)
     .command('push', 'push something to target', function(yargs) {
       yargs
         .command('note', 'push a note', PushNote)

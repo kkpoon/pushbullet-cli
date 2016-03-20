@@ -1,7 +1,20 @@
 var fs = require('fs');
 var request = require('request');
+var axios = require('axios');
 
 function PushBullet(PB_ACCESS_TOKEN) {
+
+  function RequestAPI(path, options) {
+    options = options || {};
+    var opt = {
+      url: "https://api.pushbullet.com/v2" + path,
+      headers: Object.assign({
+        "Access-Token": PB_ACCESS_TOKEN
+      }, options.headers || {})
+    };
+    return axios(Object.assign({}, options, opt));
+  }
+
   function AccessHeader() {
     return {
       "Access-Token": PB_ACCESS_TOKEN
@@ -9,52 +22,55 @@ function PushBullet(PB_ACCESS_TOKEN) {
   }
 
   function ListDevices(callback) {
-    request({
-      url: "https://api.pushbullet.com/v2/devices",
-      headers: AccessHeader(),
-      json: true
-    }, function(err, res, body) {
-      if (err) {
+    RequestAPI("/devices")
+      .then(function(response) {
+        callback(null, response.data);
+      })
+      .catch(function(err) {
+        console.error(err);
         callback(err);
-      } else {
-        callback(null, body);
-      }
-    });
+      });
   }
 
   function ListContacts(callback) {
-    request({
-      url: "https://api.pushbullet.com/v2/contacts",
-      headers: AccessHeader(),
-      json: true
-    }, function(err, res, body) {
-      if (err) {
+    RequestAPI("/contacts")
+      .then(function(response) {
+        callback(null, response.data);
+      })
+      .catch(function(err) {
+        console.error(err);
         callback(err);
-      } else {
-        callback(null, body);
-      }
-    });
+      });
+  }
+
+  function ListPushes(callback) {
+    RequestAPI("/pushes", { params: { active: true } })
+      .then(function(response) {
+        callback(null, response.data);
+      })
+      .catch(function(err) {
+        console.error(err);
+        callback(err);
+      });
   }
 
   function Push(params, callback) {
     function DoPush(params, callback) {
-      request({
-        url: "https://api.pushbullet.com/v2/pushes",
-        method: "POST",
-        headers: AccessHeader(),
-        json: true,
-        body: params
-      }, function(err, res, body) {
-        if (err) {
-          callback(err)
-        } else {
-          callback(null, body);
-        }
-      });
+      RequestAPI("/pushes", { method: "POST", data: params })
+        .then(function(response) {
+          callback(null, response.data);
+        })
+        .catch(function(err) {
+          console.error(err);
+          callback(err);
+        });
     }
 
     if (params.type === 'file') {
       UploadFile(params, function(err, fileInfo) {
+        if (err) {
+          return callback(err);
+        }
         params.file_url = fileInfo.file_url;
         delete params.file;
         DoPush(params, callback);
@@ -65,16 +81,13 @@ function PushBullet(PB_ACCESS_TOKEN) {
   }
 
   function UploadFile(params, callback) {
-    request({
-      url: "https://api.pushbullet.com/v2/upload-request",
-      method: "POST",
-      headers: AccessHeader(),
-      json: true,
-      body: {file_name: params.file_name, file_type: params.file_type}
-    }, function(err, res, body) {
-      if (err) {
-        callback(err);
-      } else {
+    var uploadParams = {
+      file_name: params.file_name,
+      file_type: params.file_type
+    };
+    RequestAPI("/upload-request", { method: "POST", data: uploadParams })
+      .then(function(response) {
+        var body = response.data;
         var awsData = body.data;
         awsData.file = fs.createReadStream(params.file);
         request({
@@ -96,13 +109,17 @@ function PushBullet(PB_ACCESS_TOKEN) {
             }
           }
         });
-      }
-    });
+      })
+      .catch(function(err) {
+        console.error(err);
+        callback(err);
+      });
   }
 
   return {
     ListContacts: ListContacts,
     ListDevices: ListDevices,
+    ListPushes: ListPushes,
     Push: Push
   };
 }
