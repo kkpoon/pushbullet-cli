@@ -2,7 +2,7 @@
 
 ## Install
 
-```npm install -g pbl-cli```
+```npm install -g kkpoon-pushbullet-cli```
 
 ## Setup
 
@@ -12,20 +12,24 @@
 
 ### List Contacts
 
-```pbl list-contacts```
+```pushbullet list-contacts```
 
 ### List Devices
 
-```pbl list-devices```
+```pushbullet list-devices```
+
+### List Pushes
+
+```pushbullet list-pushes```
 
 ### Push Note
 
-```pbl push note --title "Hello" --body "World"```
+```pushbullet push note --title "Hello" --body "World"```
 
 ### Push Link
 
-```pbl push link --title "Github" --body "Git" --url "https://www.github.com"```
+```pushbullet push link --title "Github" --body "Git" --url "https://www.github.com"```
 
 ### Push File
 
-```pbl push file --body "My File" --file myfile.png```
+```pushbullet push file --body "My File" --file myfile.png```

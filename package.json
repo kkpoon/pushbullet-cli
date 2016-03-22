@@ -1,17 +1,17 @@
 {
-  "name": "pbl-cli",
-  "version": "1.0.0",
+  "name": "kkpoon-pushbullet-cli",
+  "version": "1.0.2",
   "description": "command line tool for pushbullet",
   "main": "index.js",
   "bin": {
-    "pbl": "bin/pushbullet.js"
+    "pushbullet": "bin/pushbullet.js"
   },
   "scripts": {
     "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kkpoon/pbl-cli.git"
+    "url": "git+https://github.com/kkpoon/pushbullet-cli.git"
   },
   "keywords": [
     "pushbullet"
@@ -19,9 +19,9 @@
   "author": "K.K. POON",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kkpoon/pbl-cli/issues"
+    "url": "https://github.com/kkpoon/pushbullet-cli/issues"
   },
-  "homepage": "https://github.com/kkpoon/pbl-cli#readme",
+  "homepage": "https://github.com/kkpoon/pushbullet-cli#readme",
   "devDependencies": {
     "jest-cli": "^0.4.15"
   },
